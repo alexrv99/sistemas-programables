@@ -1,0 +1,15 @@
+*.pioenvs
+*.piolibdeps
+*.clang_complete
+*.gcc-flags.json
+*.travis.yml
+*.hex
+*.c
+*.ini
+*.yml
+*.vscode
+/ring/esquematicos/Eagle/Ring/!*.brd
+/ring/esquematicos/Eagle/Ring!*.sch
+*.stino-settings
+*.wbk
+*.bin
