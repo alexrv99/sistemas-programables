@@ -1,3 +1,7 @@
+#include <Servo.h>
+
+Servo sg90;
+
 unsigned long tiempoApagado;
 unsigned long tiempoEncendido;
 
@@ -9,32 +13,35 @@ float semiCicloAlto = 0.2;
 
 void setup() {
   Serial.begin(115200);
+  sg90.attach(9);
+  pinMode(LED, OUTPUT);
 
   Serial.println("Inserta el período (T en milisegundos)");
-  delay(10);
   esperarDato();
-  String intervalo = leerString();
-  Serial.print("intervalo ");
+  long intervalo = leerString().toInt();
+  Serial.print("Intervalo: ");
   Serial.println(intervalo);
 
 
   Serial.println("Teclee el semiciclo en alto de 0 a 100");
-  delay(10);
   esperarDato();
-  String porcentaje = leerString();
+  int porcentaje = leerString().toInt();
 
 
-  Serial.print("porcentaje ");
+  Serial.print("Porcentaje: ");
   Serial.println(porcentaje);
 
-  int tiempo = intervalo.toInt();
-  int percentage = porcentaje.toInt();
+  
 
-  tiempoEncendido = tiempo * percentage / 100;
-  tiempoApagado = tiempo - tiempoEncendido;
+  tiempoEncendido = intervalo * porcentaje / 100;
+  tiempoApagado = intervalo - tiempoEncendido;
 
+  Serial.print("tiempoEncendido: ");
   Serial.println(tiempoEncendido);
-  pinMode(LED, OUTPUT);
+
+  Serial.print("tiempoApagado: ");
+  Serial.println(tiempoApagado);
+  
 }
 
 void loop() {
@@ -47,6 +54,16 @@ void loop() {
   digitalWrite(LED, LOW);
   Serial.println("Apagado");
   asyncDelay(tiempoApagado);
+
+
+
+
+  sg90.write(90);
+
+  sg90.write(60);
+  delay(1000);
+  sg90.write(120);
+  delay(1000);
 }
 
 void asyncDelay(unsigned long interval) {
