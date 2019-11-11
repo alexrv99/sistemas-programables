@@ -31,7 +31,7 @@ void setup() {
   Serial.print("Porcentaje: ");
   Serial.println(porcentaje);
 
-  
+
 
   tiempoEncendido = intervalo * porcentaje / 100;
   tiempoApagado = intervalo - tiempoEncendido;
@@ -41,29 +41,23 @@ void setup() {
 
   Serial.print("tiempoApagado: ");
   Serial.println(tiempoApagado);
-  
+
 }
 
 void loop() {
   readSerial();
 
+  sg90.write(90);
   digitalWrite(LED, HIGH);
   Serial.println("Encendido");
   asyncDelay(tiempoEncendido);
 
+  sg90.write(120);
   digitalWrite(LED, LOW);
   Serial.println("Apagado");
   asyncDelay(tiempoApagado);
 
 
-
-
-  sg90.write(90);
-
-  sg90.write(60);
-  delay(1000);
-  sg90.write(120);
-  delay(1000);
 }
 
 void asyncDelay(unsigned long interval) {
