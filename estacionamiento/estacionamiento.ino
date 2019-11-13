@@ -4,8 +4,9 @@
    carros.
    Cuando un carro quiere entrar y no hay lugar, el led debe parpadear.
    Los servos se usan para simular las plumas.
-   Si esta lleno, se mantiene el LED rojo. Si queda un lugar, parpadea el rojo.
+   Si esta lleno, se mantiene el LED rojo. Si queda un lugar, parpadea el verde.
    Si no esta lleno y hay menos de 9 lugares, se mantiene en verde.
+
 */
 
 #include <Servo.h>
@@ -14,8 +15,8 @@ Servo servoEntrada;
 Servo servoSalida;
 
 byte carros = 0;
-byte pinServoEntrada = 2;
-byte pinServoSalida = 3;
+byte pinServoEntrada = 9;
+byte pinServoSalida = 10;
 byte pinPirEntrada = 4;
 byte pinPirSalida = 5;
 byte pinLedEntrada = 6;
@@ -59,12 +60,13 @@ void loop() {
 
   if (digitalRead(pinServoSalida)) {
     Serial.println("CARRO EN SALIDA");
+    if (carros > 0) {
 
-    // CERRAR
-    servoSalida.write(0);
-    delay(1000);
-    servoSalida.write(180);
-    carros--;
+      // CERRAR
+      servoSalida.write(0);
+      delay(1000);
+      servoSalida.write(180);
+      carros--;
+    }
   }
-
 }
