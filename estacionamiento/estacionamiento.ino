@@ -41,8 +41,21 @@ void setup() {
 
 
 void loop() {
+//  Serial.println(digitalRead(pinPirSalida));
+  digitalWrite(pinLedSalida, carros == limiteCarros);
+  digitalWrite(pinLedSalida, carros < limiteCarros);
 
-  if (digitalRead(pinServoEntrada)) {
+  if (carros == 9) {
+    digitalWrite(pinLedEntrada, HIGH);
+    asyncDelay(500);
+    digitalWrite(pinLedEntrada, LOW);
+  }
+
+  verificarPuertas();
+}
+
+void verificarPuertas() {
+   if (digitalRead(pinServoEntrada)) {
     Serial.println("CARRO EN ENTRADA");
 
     if (carros == limiteCarros) {
@@ -59,9 +72,9 @@ void loop() {
 
 
   if (digitalRead(pinServoSalida)) {
+    
     Serial.println("CARRO EN SALIDA");
     if (carros > 0) {
-
       // CERRAR
       servoSalida.write(0);
       delay(1000);
@@ -70,3 +83,11 @@ void loop() {
     }
   }
 }
+
+void asyncDelay(unsigned long interval) {
+  unsigned long currentTime = millis();
+  while (millis() < currentTime + interval) {
+    verificarPuertas();
+  }
+}
+
