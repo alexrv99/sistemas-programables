@@ -30,7 +30,7 @@ byte limiteCarros = 10;
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   servoEntrada.attach(pinServoEntrada);
   servoSalida.attach(pinServoSalida);
 
@@ -42,19 +42,27 @@ void setup() {
 }
 
 
+unsigned long tiempoDesdeUltimoBlink;
+
 void loop() {
   //  Serial.println(digitalRead(pinPirSalida));
   digitalWrite(pinLedRojo, carros == limiteCarros);
-  digitalWrite(pinLedRojo, carros < limiteCarros);
 
-  if (carros == 9) {
+
+  if (carros < 9) {
     digitalWrite(pinLedVerde, HIGH);
-    asyncDelay(500);
+  } else if (carros == limiteCarros) {
     digitalWrite(pinLedVerde, LOW);
   }
 
+  if (carros == 9 && tiempoDesdeUltimoBlink + 1000 < millis()) {
+    digitalWrite(pinLedVerde, !digitalRead(pinLedVerde));
+    tiempoDesdeUltimoBlink = millis();
+  } 
   verificarPuertas();
 }
+
+
 
 void verificarPuertas() {
   int lecturaEntrada = ultraEntrada.Ranging(CM);
@@ -66,34 +74,32 @@ void verificarPuertas() {
 
   if (lecturaEntrada < 10) {
     Serial.println("CARRO EN ENTRADA");
-    Serial.print("Carros: ");
-    Serial.println(carros);
-    
-
     if (carros == limiteCarros) {
       Serial.println("Entrada negada!");
     } else {
-      // ABRIR
-      Serial.println("Abriendo...");
-      servoEntrada.write(0);
-      delay(1000);
-      servoEntrada.write(180);
       carros++;
+      Serial.print("Carros: ");
+      Serial.println(carros);
+      Serial.println("--------------------");
+      // ABRIR
+      servoEntrada.write(0);
+      delay(2000);
+      servoEntrada.write(180);
     }
   }
 
 
   if (lecturaSalida < 10) {
     Serial.println("CARRO EN SALIDA");
-    Serial.print("Carros: ");
-    Serial.println(carros);
     if (carros > 0) {
-      Serial.println("Cerrando...");
+      carros--;
+      Serial.print("Carros: ");
+      Serial.println(carros);
+      Serial.println("--------------------");
       // CERRAR
       servoSalida.write(0);
-      delay(1000);
+      delay(2000);
       servoSalida.write(180);
-      carros--;
     }
   }
 }
