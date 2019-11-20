@@ -10,6 +10,12 @@
 */
 
 #include <Servo.h>
+#include <Ultrasonic.h>
+
+
+Ultrasonic ultraEntrada(2, 3, 400 * 58 ); // (Trig PIN,Echo PIN,DistMax*58)
+Ultrasonic ultraSalida(4, 5, 400 * 58 ); // (Trig PIN,Echo PIN,DistMax*58)
+
 
 Servo servoEntrada;
 Servo servoSalida;
@@ -17,52 +23,58 @@ Servo servoSalida;
 byte carros = 0;
 byte pinServoEntrada = 9;
 byte pinServoSalida = 10;
-byte pinPirEntrada = 4;
-byte pinPirSalida = 5;
-byte pinLedEntrada = 6;
-byte pinLedSalida = 7;
+byte pinLedVerde = 6;
+byte pinLedRojo = 7;
 
 byte limiteCarros = 10;
 
 void setup() {
 
   Serial.begin(9600);
-  servoEntrada.attach(9);
-  servoEntrada.attach(10);
+  servoEntrada.attach(pinServoEntrada);
+  servoSalida.attach(pinServoSalida);
 
   pinMode(pinServoEntrada, OUTPUT);
   pinMode(pinServoSalida, OUTPUT);
-  pinMode(pinPirEntrada, INPUT);
-  pinMode(pinPirSalida, INPUT);
-  pinMode(pinLedEntrada, OUTPUT);
-  pinMode(pinLedSalida, OUTPUT);
+  pinMode(pinLedVerde, OUTPUT);
+  pinMode(pinLedRojo, OUTPUT);
 
 }
 
 
 void loop() {
-//  Serial.println(digitalRead(pinPirSalida));
-  digitalWrite(pinLedSalida, carros == limiteCarros);
-  digitalWrite(pinLedSalida, carros < limiteCarros);
+  //  Serial.println(digitalRead(pinPirSalida));
+  digitalWrite(pinLedRojo, carros == limiteCarros);
+  digitalWrite(pinLedRojo, carros < limiteCarros);
 
   if (carros == 9) {
-    digitalWrite(pinLedEntrada, HIGH);
+    digitalWrite(pinLedVerde, HIGH);
     asyncDelay(500);
-    digitalWrite(pinLedEntrada, LOW);
+    digitalWrite(pinLedVerde, LOW);
   }
 
   verificarPuertas();
 }
 
 void verificarPuertas() {
-   if (digitalRead(pinServoEntrada)) {
+  int lecturaEntrada = ultraEntrada.Ranging(CM);
+  int lecturaSalida = ultraSalida.Ranging(CM);
+  //  Serial.print("Entrada: ");
+  //  Serial.println(lecturaEntrada);
+  //  Serial.print("Salida: ");
+  //  Serial.println(lecturaSalida);
+
+  if (lecturaEntrada < 10) {
     Serial.println("CARRO EN ENTRADA");
+    Serial.print("Carros: ");
+    Serial.println(carros);
+    
 
     if (carros == limiteCarros) {
       Serial.println("Entrada negada!");
-
     } else {
       // ABRIR
+      Serial.println("Abriendo...");
       servoEntrada.write(0);
       delay(1000);
       servoEntrada.write(180);
@@ -71,10 +83,12 @@ void verificarPuertas() {
   }
 
 
-  if (digitalRead(pinServoSalida)) {
-    
+  if (lecturaSalida < 10) {
     Serial.println("CARRO EN SALIDA");
+    Serial.print("Carros: ");
+    Serial.println(carros);
     if (carros > 0) {
+      Serial.println("Cerrando...");
       // CERRAR
       servoSalida.write(0);
       delay(1000);
@@ -90,4 +104,3 @@ void asyncDelay(unsigned long interval) {
     verificarPuertas();
   }
 }
-
